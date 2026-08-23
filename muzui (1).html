@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>デッキルーレット</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    max-width: 840px;
+    margin: 30px auto;
+    padding: 0 20px;
+    color: #2c3e50;
+    background-color: #f8f9fa;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: center;
+    color: #1a252f;
+    letter-spacing: 1px;
+}
+
+.app-container {
+    display: flex;
+    gap: 24px;
+}
+
+.main-sec {
+    flex: 1;
+}
+
+.side-sec {
+    width: 240px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    height: fit-content;
+}
+
+.side-sec h2 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #4a5568;
+}
+
+.player-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #718096;
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 10px 0 4px;
+    color: #4a5568;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #2d3748;
+    transition: border-color 0.15s ease;
+}
+
+input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: #4299e1;
+}
+
+.mode-select {
+    margin: 10px 0 6px;
+}
+
+.mode-select label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    margin-right: 16px;
+    cursor: pointer;
+}
+
+.hero-box {
+    margin-top: 8px;
+    display: none;
+}
+
+.filter-box {
+    margin-top: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.filter-box summary {
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #4a5568;
+}
+
+.filter-list {
+    padding: 10px;
+    border-top: 1px solid #edf2f7;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: #4a5568;
+}
+
+.reset-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #edf2f7;
+    color: #4a5568;
+    border: none;
+    border-radius: 4px;
+}
+
+.btn-start {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: #2b6cb0;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background-color 0.15s ease;
+}
+
+.btn-start:hover {
+    background: #2c5282;
+}
+
+.btn-start:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+}
+
+/* 結果表示 */
+#resultArea {
+    margin-top: 28px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.player-res {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* 名前長すぎ対策で縦並びに変更 */
+.res-header {
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+
+.res-pname {
+    font-size: 12px;
+    font-weight: 600;
+    color: #718096;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.res-hero {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a202c;
+    word-break: break-all;
+}
+
+.res-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.card-row {
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 42px;
+}
+
+.card-num {
+    width: 36px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.15);
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.card-label {
+    flex: 1;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+/* タイプごとの色 */
+.type-近距離 .card-row   { background: #e53e3e; }
+.type-遠距離 .card-row   { background: #dd6b20; }
+.type-連続 .card-row     { background: #9b2c2c; }
+.type-周囲 .card-row     { background: #c05621; }
+.type-回復 .card-row     { background: #38a169; }
+.type-ガード .card-row   { background: #d69e2e; }
+.type-強化 .card-row     { background: #00a3c4; }
+.type-弱体化 .card-row   { background: #6b46c1; }
+.type-移動 .card-row     { background: #3182ce; }
+.type-設置 .card-row     { background: #234e52; }
+.type-カウンター .card-row { background: #d53f8c; }
+.type-その他 .card-row   { background: #4a5568; }
+
+.anim-fade {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 640px) {
+    .app-container {
+        flex-direction: column;
+    }
+    .side-sec {
+        width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<template id="heroOptions">
+    <option value="">キャラを選択してね</option>
+    <optgroup label="スプリンター">
+        <option>十文字 アタリ</option>
+        <option>Voidoll</option>
+        <option>ニコラ テスラ</option>
+        <option>コクリコット ブランシュ</option>
+        <option>かけだし勇者</option>
+        <option>輝龍院 きらら</option>
+        <option>零夜</option>
+        <option>ピエール77世</option>
+        <option>アル・ダハブ＝アルカティア</option>
+        <option>某＜なにがし＞</option>
+        <option>チーちゃん</option>
+        <option>ペルリニエ</option>
+        <option>初音 ミク</option>
+        <option>春麗</option>
+        <option>ザック & レイチェル</option>
+        <option>アクア</option>
+        <option>中島敦</option>
+        <option>ジョーカー</option>
+        <option>アスナ</option>
+        <option>ラム</option>
+        <option>ベル・クラネル</option>
+        <option>パワー</option>
+        <option>キルア</option>
+        <option>上条 当麻</option>
+        <option>セイバー</option>
+        <option>一姫</option>
+    </optgroup>
+    <optgroup label="アタッカー">
+        <option>双挽 乃保</option>
+        <option>桜華 忠臣</option>
+        <option>マルコス'55</option>
+        <option>マリア=S=レオンブルク</option>
+        <option>アダム=ユーリエフ</option>
+        <option>ヴィーナス ポロロッチョ</option>
+        <option>デビルミント鬼龍 デルミン</option>
+        <option>ルルカ</option>
+        <option>狐ヶ咲 甘色</option>
+        <option>イグニス=ウィル=ウィスプ</option>
+        <option>ステリア・ララ・シルワ</option>
+        <option>クー・シー</option>
+        <option>コラプス</option>
+        <option>シャルル・リヒター</option>
+        <option>ソル＝バッドガイ</option>
+        <option>リュウ</option>
+        <option>レム</option>
+        <option>カイ＝キスク</option>
+        <option>リヴァイ</option>
+        <option>セイバーオルタ</option>
+        <option>アイズ・ヴァレンシュタイン</option>
+        <option>ノクティス</option>
+        <option>キリト</option>
+        <option>2B</option>
+        <option>リムル=テンペスト</option>
+        <option>御坂美琴</option>
+        <option>デンジ</option>
+        <option>ターニャ</option>
+        <option>ボンドルド</option>
+        <option>ゴン</option>
+        <option>シャドウ</option>
+        <option>アーチャー</option>
+    </optgroup>
+    <optgroup label="ガンナー">
+        <option>リリカ</option>
+        <option>ルチアーノ</option>
+        <option>深川 まとい</option>
+        <option>13 †サーティーン†</option>
+        <option>メグメグ</option>
+        <option>イスタカ</option>
+        <option>ソーン=ユーリエフ</option>
+        <option>ニーズヘッグ</option>
+        <option>ゲームバズーカガール</option>
+        <option>糸廻 輪廻</option>
+        <option>Bugdoll</option>
+        <option>天空王 ぶれいずどらごん</option>
+        <option>みりぽゆ</option>
+        <option>メルーニャ</option>
+        <option>ディズィー</option>
+        <option>エミリア</option>
+        <option>鏡音 リン</option>
+        <option>猫宮 ひなた</option>
+        <option>岡部 倫太郎</option>
+        <option>ギルガメッシュ</option>
+        <option>芥川龍之介</option>
+        <option>アインズ・ウール・ゴウン</option>
+        <option>アクセラレータ</option>
+        <option>ロキシー・ミグルディア</option>
+        <option>ロックマン.EXE & 光熱斗</option>
+        <option>シノン</option>
+        <option>ランサー</option>
+        <option>レゼ</option>
+    </optgroup>
+    <optgroup label="タンク">
+        <option>ジャスティス ハンコック</option>
+        <option>ジャンヌ ダルク</option>
+        <option>グスタフ ハイドリヒ</option>
+        <option>ヴィオレッタ ノワール</option>
+        <option>トマス</option>
+        <option>青春アリス</option>
+        <option>ラヴィ・シュシュマルシュ</option>
+        <option>アミスター=バランディン</option>
+        <option>鬼ヶ式 うら</option>
+        <option>†ファースト†</option>
+        <option>鏡音 レン</option>
+        <option>モノクマ</option>
+        <option>めぐみん</option>
+        <option>佐藤四郎兵衛忠信</option>
+        <option>ライザリン・シュタウト</option>
+        <option>ポプ子＆ピピ美</option>
+    </optgroup>
+</template>
+
+<h1>デッキルーレット</h1>
+
+<div class="app-container">
+    <div class="main-sec">
+        <div id="playerList"></div>
+        <button id="startBtn" class="btn-start" onclick="drawDeck()">START</button>
+        <div id="resultArea"></div>
+    </div>
+
+    <div class="side-sec">
+        <h2>オプション</h2>
+
+        <label for="memberCount">人数</label>
+        <select id="memberCount" onchange="buildPlayerInputs()">
+            <option value="1">1人</option>
+            <option value="2">2人</option>
+            <option value="3">3人</option>
+            <option value="4">4人</option>
+            <option value="5">5人</option>
+            <option value="6">6人</option>
+            <option value="7">7人</option>
+            <option value="8">8人</option>
+            <option value="9">9人</option>
+            <option value="10">10人</option>
+        </select>
+
+        <details class="filter-box">
+            <summary>カード絞り込み</summary>
+            <div class="filter-list">
+                <label class="filter-item"><input type="checkbox" value="近距離" checked> 近距離</label>
+                <label class="filter-item"><input type="checkbox" value="遠距離" checked> 遠距離</label>
+                <label class="filter-item"><input type="checkbox" value="連続" checked> 連続</label>
+                <label class="filter-item"><input type="checkbox" value="周囲" checked> 周囲</label>
+                <label class="filter-item"><input type="checkbox" value="回復" checked> 回復</label>
+                <label class="filter-item"><input type="checkbox" value="ガード" checked> ガード</label>
+                <label class="filter-item"><input type="checkbox" value="強化" checked> 強化</label>
+                <label class="filter-item"><input type="checkbox" value="弱体化" checked> 弱体化</label>
+                <label class="filter-item"><input type="checkbox" value="移動" checked> 移動</label>
+                <label class="filter-item"><input type="checkbox" value="設置" checked> 設置</label>
+                <label class="filter-item"><input type="checkbox" value="カウンター" checked> カウンター</label>
+                <label class="filter-item"><input type="checkbox" value="その他" checked> その他</label>
+
+                <button class="reset-btn" onclick="checkAllFilters()">全選択</button>
+            </div>
+        </details>
+    </div>
+</div>
+
+<script>
+// 人数切り替えたときのフォーム生成
+function buildPlayerInputs() {
+    const count = parseInt(document.getElementById('memberCount').value, 10);
+    const container = document.getElementById('playerList');
+
+    const oldCards = container.querySelectorAll('.player-card');
+    const savedData = [];
+
+    // 人数変えても入力中の名前とかを消さないように保持
+    oldCards.forEach(card => {
+        const nameVal = card.querySelector('.p-name').value;
+        const modeVal = card.querySelector('input[type="radio"]:checked')?.value || 'random';
+        const heroVal = card.querySelector('.p-hero').value;
+        savedData.push({ name: nameVal, mode: modeVal, hero: heroVal });
+    });
+
+    container.innerHTML = '';
+    const tpl = document.getElementById('heroOptions');
+
+    for (let i = 1; i <= count; i++) {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+
+        const prev = savedData[i - 1];
+        const defaultName = count === 1 ? '名無し' : `名無し${i}`;
+        const isSelectMode = prev?.mode === 'select';
+
+        card.innerHTML = `
+            <div class="card-title">${count === 1 ? 'プレイヤー設定' : 'プレイヤー ' + i}</div>
+            <label>名前</label>
+            <input type="text" class="p-name" value="${prev ? prev.name : defaultName}">
+            
+            <div class="mode-select">
+                <label><input type="radio" name="mode_${i}" value="random" ${!isSelectMode ? 'checked' : ''} onchange="toggleHeroBox(${i})"> ランダム</label>
+                <label><input type="radio" name="mode_${i}" value="select" ${isSelectMode ? 'checked' : ''} onchange="toggleHeroBox(${i})"> 選択</label>
+            </div>
+
+            <div class="hero-box" id="heroBox_${i}" style="display: ${isSelectMode ? 'block' : 'none'};">
+                <select class="p-hero" id="heroSelect_${i}">
+                </select>
+            </div>
+        `;
+
+        container.appendChild(card);
+
+        const selectEl = card.querySelector('.p-hero');
+        selectEl.appendChild(tpl.content.cloneNode(true));
+        if (prev?.hero) {
+            selectEl.value = prev.hero;
+        }
+    }
+}
+
+// キャラ手動選択エリアの出し分け
+function toggleHeroBox(index) {
+    const mode = document.querySelector(`input[name="mode_${index}"]:checked`).value;
+    const box = document.getElementById(`heroBox_${index}`);
+    box.style.display = (mode === 'select') ? 'block' : 'none';
+}
+
+function checkAllFilters() {
+    document.querySelectorAll('.filter-list input[type="checkbox"]').forEach(cb => cb.checked = true);
+}
+
+// ルーレット処理
+function drawDeck() {
+    const startBtn = document.getElementById('startBtn');
+    const count = parseInt(document.getElementById('memberCount').value, 10);
+    const cards = document.querySelectorAll('.player-card');
+
+    const checkedFilters = Array.from(document.querySelectorAll('.filter-list input:checked')).map(cb => cb.value);
+
+    // 一つも選ばれてなかったら止める
+    if (checkedFilters.length === 0) {
+        alert('カードのタイプを1つ以上チェックしてください！');
+        return;
+    }
+
+    const tpl = document.getElementById('heroOptions');
+    const dummySelect = document.createElement('select');
+    dummySelect.appendChild(tpl.content.cloneNode(true));
+    const allHeroes = Array.from(dummySelect.options)
+        .map(opt => opt.text)
+        .filter(text => text !== 'キャラを選択してね');
+
+    const players = [];
+    for (let i = 0; i < count; i++) {
+        const card = cards[i];
+        let name = card.querySelector('.p-name').value.trim();
+        const mode = card.querySelector('input[type="radio"]:checked').value;
+        const hero = card.querySelector('.p-hero').value;
+
+        if (!name) name = count === 1 ? '名無し' : `名無し${i + 1}`;
+
+        if (mode === 'select' && !hero) {
+            alert(`${i + 1}人目のキャラが選ばれてません！`);
+            return;
+        }
+
+        players.push({ name, mode, hero });
+    }
+
+    // 連打防止
+    startBtn.disabled = true;
+
+    const resultBox = document.getElementById('resultArea');
+    resultBox.innerHTML = '';
+
+    // ちょっと長めにしてルーレット感を出す
+    let delay = 300;
+
+    players.forEach((p, pIdx) => {
+        let heroName = p.hero;
+        if (p.mode === 'random') {
+            heroName = allHeroes[Math.floor(Math.random() * allHeroes.length)];
+        }
+
+        const pickedCards = [];
+        for (let c = 0; c < 4; c++) {
+            const randIdx = Math.floor(Math.random() * checkedFilters.length);
+            pickedCards.push(checkedFilters[randIdx]);
+        }
+
+        const pBlock = document.createElement('div');
+        pBlock.className = 'player-res anim-fade';
+
+        pBlock.innerHTML = `
+            <div class="res-header">
+                <span class="res-pname">${p.name}</span>
+                <span class="res-hero">${heroName}</span>
+            </div>
+            <div class="res-cards"></div>
+        `;
+
+        const cardsEl = pBlock.querySelector('.res-cards');
+
+        setTimeout(() => {
+            resultBox.appendChild(pBlock);
+            resultBox.scrollTop = resultBox.scrollHeight;
+        }, delay);
+
+        delay += 600; // プレイヤーごとの間隔
+
+        pickedCards.forEach((cName, idx) => {
+            setTimeout(() => {
+                const cWrapper = document.createElement('div');
+                cWrapper.className = `type-${cName} anim-fade`;
+                cWrapper.innerHTML = `
+                    <div class="card-row">
+                        <div class="card-num">${idx + 1}</div>
+                        <div class="card-label">${cName}</div>
+                    </div>
+                `;
+                cardsEl.appendChild(cWrapper);
+
+                resultBox.scrollTop = resultBox.scrollHeight;
+            }, delay);
+            delay += 600; // カード1枚ごとのテンポ（ゆったりめ）
+        });
+
+        delay += 400;
+    });
+
+    // 全部出し終わったらボタン戻す
+    setTimeout(() => {
+        startBtn.disabled = false;
+    }, delay);
+}
+
+window.addEventListener('DOMContentLoaded', buildPlayerInputs);
+</script>
+
+</body>
+</html>
