@@ -1,0 +1,3174 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>デッキルーレット</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        sans-serif;
+
+    max-width: 840px;
+    margin: 30px auto;
+    padding: 0 20px;
+
+    color: #2c3e50;
+    background: #f8f9fa;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: center;
+    color: #1a252f;
+    letter-spacing: 1px;
+}
+
+/* =========================
+   レイアウト
+========================= */
+
+.app-container {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.main-sec {
+    flex: 1;
+    min-width: 0;
+}
+
+.side-sec {
+    width: 260px;
+    flex-shrink: 0;
+
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+
+    padding: 18px;
+    height: fit-content;
+}
+
+.side-sec h2 {
+    font-size: 14px;
+    font-weight: 700;
+
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+
+    border-bottom: 1px solid #e2e8f0;
+    color: #4a5568;
+}
+
+/* =========================
+   プレイヤー設定
+========================= */
+
+#playerList {
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 12px;
+}
+
+#playerList::-webkit-scrollbar {
+    width: 6px;
+}
+#playerList::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+#playerList::-webkit-scrollbar-track {
+    background: #edf2f7;
+}
+
+.player-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+
+    padding: 14px 16px;
+    margin-bottom: 12px;
+
+    width: 100%;
+}
+
+.card-title {
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #718096;
+
+    border-bottom: 1px solid #edf2f7;
+
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+label {
+    display: block;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    margin: 10px 0 4px;
+
+    color: #4a5568;
+}
+
+input[type="text"],
+select {
+    width: 100%;
+
+    padding: 9px 12px;
+
+    font-size: 14px;
+
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+
+    background: #fff;
+    color: #2d3748;
+
+    transition:
+        border-color 0.15s ease;
+}
+
+input[type="text"]:focus,
+select:focus {
+    outline: none;
+    border-color: #4299e1;
+}
+
+.mode-select {
+    margin: 10px 0 6px;
+}
+
+.mode-select label {
+    display: inline-flex;
+
+    align-items: center;
+    gap: 6px;
+
+    font-weight: 500;
+
+    margin-right: 16px;
+
+    cursor: pointer;
+}
+
+.hero-box {
+    margin-top: 8px;
+    display: none;
+}
+
+/* =========================
+   名前プリセット機能
+========================= */
+
+.preset-box {
+    margin-top: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.preset-box summary {
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #4a5568;
+}
+
+.preset-list-container {
+    padding: 10px;
+    border-top: 1px solid #edf2f7;
+}
+
+.preset-rotate-controls {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.btn-rotate {
+    flex: 1;
+    padding: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #edf2f7;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #4a5568;
+    text-align: center;
+    transition: background 0.15s ease;
+}
+
+.btn-rotate:hover {
+    background: #e2e8f0;
+}
+
+.btn-rotate-mini {
+    flex: 0 0 42px;
+    font-size: 14px;
+    padding: 5px 2px;
+}
+
+.preset-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 6px;
+}
+
+.preset-row.locked {
+    background-color: #f7fafc;
+    border-radius: 4px;
+}
+
+.preset-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: #718096;
+    width: 16px;
+    text-align: right;
+}
+
+.preset-input {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 6px !important;
+    font-size: 12px !important;
+}
+
+.preset-btn-mini {
+    padding: 3px 4px;
+    font-size: 10px;
+    background: #edf2f7;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+    color: #4a5568;
+    flex-shrink: 0;
+}
+
+.preset-btn-mini:hover {
+    background: #e2e8f0;
+}
+
+.preset-btn-lock {
+    padding: 3px 4px;
+    font-size: 11px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+    background: #edf2f7;
+    flex-shrink: 0;
+}
+
+.preset-btn-lock.is-locked {
+    background: #feebc8;
+    border-color: #fbd38d;
+}
+
+.btn-update-names {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #319795;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+}
+
+.btn-update-names:hover {
+    background: #2c7a7b;
+}
+
+/* =========================
+   確率設定
+========================= */
+
+.probability-box {
+    margin-top: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.probability-box summary {
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #4a5568;
+}
+
+.probability-list {
+    padding: 10px;
+    border-top: 1px solid #edf2f7;
+}
+
+.prob-item {
+    margin-bottom: 12px;
+}
+
+.prob-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 5px;
+}
+
+.prob-value {
+    font-size: 11px;
+    color: #718096;
+}
+
+.prob-slider {
+    width: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.prob-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #a0aec0;
+    padding: 0 2px;
+}
+
+.reset-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #edf2f7;
+    color: #4a5568;
+    border: none;
+    border-radius: 4px;
+}
+
+/* =========================
+   START
+========================= */
+
+.btn-start {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: #2b6cb0;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background-color 0.15s ease;
+}
+
+.btn-start:hover {
+    background: #2c5282;
+}
+
+.btn-start:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+}
+
+/* =========================
+   演出ON/OFF & モード選択
+========================= */
+
+.effect-option {
+    margin-top: 16px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.effect-option label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* 初期状態では非表示 */
+.effect-details {
+    display: none;
+}
+
+.roulette-mode-group {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #cbd5e0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.roulette-mode-group label {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* 初期状態では非表示（ドパガキ版選択時のみ表示） */
+.target-hero-box {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #edf2f7;
+    display: none;
+}
+
+.target-hero-box label {
+    font-size: 11px;
+    color: #e53e3e;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.luciano-hugu-option {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #2b6cb0;
+    font-weight: 600;
+}
+
+/* =========================
+   結果＆コピーボタン追加スタイル
+========================= */
+
+.result-container {
+    margin-top: 28px;
+}
+
+.btn-copy-all {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    background: #38a169;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: background 0.15s ease;
+}
+
+.btn-copy-all:hover {
+    background: #2f855a;
+}
+
+#resultArea {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.player-res {
+    position: relative;
+    background: #ffffff;
+    border: 3px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px 16px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.player-res.team-red {
+    border-color: #e53e3e;
+}
+
+.player-res.team-blue {
+    border-color: #3182ce;
+}
+
+/* =========================
+   結果ヘッダー
+========================= */
+
+.res-header {
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.res-pname {
+    font-size: 11px;
+    font-weight: 600;
+    color: #718096;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.res-hero {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    line-height: 1.35;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    word-break: break-word;
+}
+
+/* =========================
+   リロール＆コピーボタン
+========================= */
+
+.result-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-reroll-hero,
+.btn-reroll-card,
+.btn-copy-single {
+    border: 1px solid #cbd5e0;
+    background: #f7fafc;
+    color: #4a5568;
+    border-radius: 5px;
+    padding: 4px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-copy-single {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.btn-reroll-hero:hover,
+.btn-reroll-card:hover,
+.btn-copy-single:hover {
+    background: #e2e8f0;
+    border-color: #a0aec0;
+}
+
+/* =========================
+   カード結果
+========================= */
+
+.res-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.card-row {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    overflow: hidden;
+    min-height: 38px;
+}
+
+.card-num {
+    width: 30px;
+    min-width: 30px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.15);
+    color: #ffffff;
+}
+
+.card-label {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+}
+
+/* =========================
+   カードタイプ色
+========================= */
+
+.type-近距離 .card-row, .type-近距離.roulette-slot, .slot-box.type-近距離 { background: #e53e3e !important; border-color: #c53030 !important; color: #fff !important; }
+.type-遠距離 .card-row, .type-遠距離.roulette-slot, .slot-box.type-遠距離 { background: #dd6b20 !important; border-color: #c05621 !important; color: #fff !important; }
+.type-連続 .card-row, .type-連続.roulette-slot, .slot-box.type-連続 { background: #9b2c2c !important; border-color: #742a2a !important; color: #fff !important; }
+.type-周囲 .card-row, .type-周囲.roulette-slot, .slot-box.type-周囲 { background: #c05621 !important; border-color: #9c4221 !important; color: #fff !important; }
+.type-回復 .card-row, .type-回復.roulette-slot, .slot-box.type-回復 { background: #38a169 !important; border-color: #2f855a !important; color: #fff !important; }
+.type-ガード .card-row, .type-ガード.roulette-slot, .slot-box.type-ガード { background: #d69e2e !important; border-color: #b7791f !important; color: #fff !important; }
+.type-強化 .card-row, .type-強化.roulette-slot, .slot-box.type-強化 { background: #00a3c4 !important; border-color: #0987a0 !important; color: #fff !important; }
+.type-弱体化 .card-row, .type-弱体化.roulette-slot, .slot-box.type-弱体化 { background: #6b46c1 !important; border-color: #553c9a !important; color: #fff !important; }
+.type-移動 .card-row, .type-移動.roulette-slot, .slot-box.type-移動 { background: #3182ce !important; border-color: #2b6cb0 !important; color: #fff !important; }
+.type-設置 .card-row, .type-設置.roulette-slot, .slot-box.type-設置 { background: #234e52 !important; border-color: #1a3b3e !important; color: #fff !important; }
+.type-カウンター .card-row, .type-カウンター.roulette-slot, .slot-box.type-カウンター { background: #d53f8c !important; border-color: #b83280 !important; color: #fff !important; }
+.type-その他 .card-row, .type-その他.roulette-slot, .slot-box.type-その他 { background: #4a5568 !important; border-color: #2d3748 !important; color: #fff !important; }
+
+/* =========================
+   アニメーション
+========================= */
+
+.anim-fade {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   ルーレット Overlays
+========================= */
+
+#rouletteOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.94);
+    padding: 20px;
+    overflow-y: auto;
+    transition: background 0.2s ease;
+}
+
+#rouletteOverlay.blackout {
+    background: #000000 !important;
+}
+
+#rouletteOverlay.show {
+    display: flex;
+}
+
+.roulette-window {
+    width: min(600px, 100%);
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.roulette-player {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 8px;
+}
+
+.roulette-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 14px;
+}
+
+.roulette-slot {
+    position: relative;
+    min-height: 110px;
+    height: auto;
+    overflow: visible;
+    border-radius: 12px;
+    border: 2px solid #cbd5e0;
+    background: #1a202c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    transition: background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.roulette-value {
+    font-size: clamp(18px, 4.5vw, 28px);
+    font-weight: 800;
+    color: #ffffff;
+    padding: 6px 12px;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    width: 100%;
+    transition: color 0.12s ease, transform 0.2s ease;
+}
+
+.roulette-value.card-decided {
+    font-size: clamp(24px, 6vw, 40px);
+    font-weight: 900;
+    transform: scale(1.05);
+    line-height: 1.3;
+    text-shadow: 0 3px 0 rgba(0,0,0,0.12), 0 0 20px rgba(255,255,255,0.55);
+}
+
+.roulette-value .final-deck-result {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.roulette-value .final-hero-name {
+    font-size: clamp(16px, 4vw, 22px);
+    font-weight: 800;
+    color: #ffd700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.roulette-value .final-cards-list {
+    font-size: clamp(13px, 3.2vw, 18px);
+    font-weight: 700;
+    line-height: 1.4;
+    word-break: break-all;
+    color: #ffffff;
+}
+
+.roulette-card-list {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #718096;
+}
+
+/* 同時並列スロット表示用 */
+.multi-slot-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.slot-box {
+    border: 2px solid #4a5568;
+    border-radius: 8px;
+    background: #2d3748;
+    padding: 8px;
+    text-align: center;
+    transition: all 0.1s ease;
+}
+
+.slot-box .slot-tag {
+    font-size: 10px;
+    font-weight: bold;
+    color: #cbd5e0;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+
+.slot-box.type-hero {
+    background: #2b6cb0;
+    border-color: #3182ce;
+}
+
+.slot-box .slot-val {
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffffff;
+    word-break: break-all;
+}
+
+.cards-4-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+/* ルーレット チーム色 */
+.roulette-slot.team-red {
+    background: #e53e3e;
+    border-color: #c53030;
+    box-shadow: 0 0 25px rgba(229, 62, 62, 0.45);
+}
+
+.roulette-slot.team-blue {
+    background: #3182ce;
+    border-color: #2b6cb0;
+    box-shadow: 0 0 25px rgba(49, 130, 206, 0.45);
+}
+
+.roulette-slot.team-red .roulette-value,
+.roulette-slot.team-blue .roulette-value {
+    color: #ffffff;
+}
+
+/* スキップ */
+.btn-skip {
+    margin-top: 18px;
+    padding: 9px 22px;
+    border: none;
+    border-radius: 999px;
+    background: #2d3748;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-skip:hover {
+    background: #1a202c;
+}
+
+/* アニメーション類 */
+.roulette-glow {
+    animation: rouletteGlow 0.18s infinite alternate;
+}
+
+@keyframes rouletteGlow {
+    from { transform: scale(0.98); opacity: 0.75; }
+    to { transform: scale(1.03); opacity: 1; }
+}
+
+/* ドパガキ連滅点滅強化 */
+.dopagaki-flash-multi {
+    animation: dopagakiMulti 0.15s ease infinite alternate !important;
+}
+
+@keyframes dopagakiMulti {
+    0% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 0px #fff); }
+    25% { transform: scale(1.08); filter: brightness(2.2) drop-shadow(0 0 15px #ffff00); }
+    50% { transform: scale(0.95); filter: brightness(0.8); }
+    75% { transform: scale(1.12); filter: brightness(2.5) drop-shadow(0 0 25px #ff00ff); }
+    100% { transform: scale(1.05); filter: brightness(1.8) drop-shadow(0 0 10px #00ffff); }
+}
+
+/* 当たりカード確定時の超弩級背景エフェクト */
+.target-card-jackpot {
+    animation: targetCardGigaFlash 0.08s infinite alternate !important;
+}
+
+@keyframes targetCardGigaFlash {
+    0% { background-color: #234e52 !important; box-shadow: 0 0 40px #00ffff, inset 0 0 20px #ffffff; }
+    100% { background-color: #00ffcc !important; box-shadow: 0 0 80px #ffffff, inset 0 0 40px #000000; }
+}
+
+/* スロカス特有演出スタイル */
+.slokas-window {
+    background: #000000 !important;
+    border: 4px solid #ffd700 !important;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.8), inset 0 0 30px rgba(255, 0, 0, 0.5) !important;
+    color: #ffffff !important;
+}
+
+.slokas-window .roulette-title {
+    color: #ff0055 !important;
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0000 !important;
+}
+
+.reach-banner {
+    background: linear-gradient(90deg, #ff0000, #ff00ff, #00ffff, #ff0000);
+    background-size: 300% 300%;
+    animation: rainbow 0.5s infinite linear;
+    color: #fff;
+    font-size: 40px;
+    font-weight: 900;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    text-shadow: 2px 2px 0 #000, -2px -2px 0 #000;
+}
+
+/* 金色テキスト用 */
+.gold-text {
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFD700 40%, #FF8C00 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: #ffd700 !important;
+    -webkit-text-fill-color: #ffd700 !important;
+    -webkit-text-stroke: 1px #fff3a0;
+    display: inline-block;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.95), 0 2px 3px rgba(0,0,0,0.9);
+    filter: none;
+}
+
+/* 虹色テキスト用 */
+.rainbow-text {
+    background: linear-gradient(to right, red, orange, yellow, green, cyan, blue, violet);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    display: inline-block;
+}
+
+@keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.rainbow-flash {
+    animation: rainbowFlash 0.08s infinite !important;
+}
+
+@keyframes rainbowFlash {
+    0% { background-color: #ff0000; }
+    20% { background-color: #ffff00; }
+    40% { background-color: #00ff00; }
+    60% { background-color: #00ffff; }
+    80% { background-color: #ff00ff; }
+    100% { background-color: #ff0000; }
+}
+
+.luciano-text {
+    font-size: 42px !important;
+    font-weight: 900 !important;
+    color: #ffffff;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    display: inline-block;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0055;
+}
+
+/* =========================
+   お知らせ
+========================= */
+
+.notice-box {
+    margin-top: 28px;
+    background: #ffffff;
+    border: 1px solid #bee3f8;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.notice-box summary {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2b6cb0;
+}
+
+.notice-content {
+    max-height: 240px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 6px;
+}
+
+.notice-item {
+    padding: 12px 0;
+    border-top: 1px solid #ebf8ff;
+}
+
+.notice-item:first-of-type {
+    margin-top: 10px;
+}
+
+.notice-version {
+    font-size: 13px;
+    font-weight: 800;
+    color: #2b6cb0;
+    margin-bottom: 5px;
+}
+
+.notice-date {
+    font-size: 11px;
+    color: #a0aec0;
+    margin-left: 8px;
+    font-weight: 400;
+}
+
+.notice-detail {
+    font-size: 12px;
+    color: #4a5568;
+    line-height: 1.7;
+}
+
+/* =========================
+   ログ
+========================= */
+
+.log-box {
+    margin-top: 28px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.log-box summary {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: #4a5568;
+}
+
+.log-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.log-btn {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e0;
+    background: #f7fafc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.log-item {
+    border-top: 1px solid #edf2f7;
+    padding: 12px 0;
+}
+
+.log-date {
+    font-size: 11px;
+    color: #a0aec0;
+    margin-bottom: 6px;
+}
+
+.log-player {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 4px;
+}
+
+.log-detail {
+    font-size: 12px;
+    color: #718096;
+    line-height: 1.6;
+}
+
+.no-log {
+    font-size: 12px;
+    color: #a0aec0;
+    text-align: center;
+    padding: 15px;
+}
+
+/* =========================
+   スマホ対応
+========================= */
+
+@media (max-width: 640px) {
+
+    body {
+        margin: 18px auto;
+        padding: 0 10px;
+    }
+
+    .app-container {
+        flex-direction: column;
+    }
+
+    .side-sec {
+        width: 100%;
+    }
+
+    #playerList {
+        max-height: 380px;
+    }
+
+    #resultArea {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .player-res {
+        padding: 11px 10px 12px;
+    }
+
+    .res-hero {
+        font-size: 15px;
+        min-height: 42px;
+    }
+
+    .res-pname {
+        font-size: 10px;
+    }
+
+    .result-actions {
+        gap: 3px;
+    }
+
+    .btn-reroll-hero,
+    .btn-reroll-card,
+    .btn-copy-single {
+        padding: 3px 5px;
+        font-size: 9px;
+    }
+
+    .card-row {
+        min-height: 34px;
+    }
+
+    .card-num {
+        width: 25px;
+        min-width: 25px;
+        height: 34px;
+        font-size: 9px;
+    }
+
+    .card-label {
+        min-height: 34px;
+        padding: 5px 6px;
+        font-size: 10px;
+    }
+
+    .roulette-window {
+        padding: 24px 16px;
+    }
+
+    .roulette-value {
+        font-size: 20px;
+    }
+
+    .roulette-slot {
+        min-height: 100px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- =========================
+     ヒーロー一覧
+========================= -->
+
+<template id="heroOptions">
+
+<option value="">
+    キャラを選択してね
+</option>
+
+<optgroup label="スプリンター">
+<option>十文字 アタリ</option>
+<option>Voidoll</option>
+<option>ニコラ テスラ</option>
+<option>コクリコット ブランシュ</option>
+<option>かけだし勇者</option>
+<option>輝龍院 きらら</option>
+<option>零夜</option>
+<option>ピエール77世</option>
+<option>アル・ダハブ＝アルカティア</option>
+<option>某＜なにがし＞</option>
+<option>チーちゃん</option>
+<option>ペルリニエ</option>
+<option>初音 ミク</option>
+<option>春麗</option>
+<option>ザック & レイチェル</option>
+<option>アクア</option>
+<option>中島敦</option>
+<option>ジョーカー</option>
+<option>アスナ</option>
+<option>ラム</option>
+<option>ベル・クラネル</option>
+<option>パワー</option>
+<option>キルア</option>
+<option>上条 当麻</option>
+<option>セイバー</option>
+<option>一姫</option>
+</optgroup>
+
+<optgroup label="アタッカー">
+<option>双挽 乃保</option>
+<option>桜華 忠臣</option>
+<option>マルコス'55</option>
+<option>マリア=S=レオンブルク</option>
+<option>アダム=ユーリエフ</option>
+<option>ヴィーナス ポロロッチョ</option>
+<option>デビルミント鬼龍 デルミン</option>
+<option>ルルカ</option>
+<option>狐ヶ咲 甘色</option>
+<option>イグニス=ウィル=ウィスプ</option>
+<option>ステリア・ララ・シルワ</option>
+<option>クー・シー</option>
+<option>コラプス</option>
+<option>シャルル・リヒター</option>
+<option>ソル＝バッドガイ</option>
+<option>リュウ</option>
+<option>レム</option>
+<option>カイ＝キスク</option>
+<option>リヴァイ</option>
+<option>セイバーオルタ</option>
+<option>アイズ・ヴァレンシュタイン</option>
+<option>ノクティス</option>
+<option>キリト</option>
+<option>2B</option>
+<option>リムル=テンペスト</option>
+<option>御坂美琴</option>
+<option>デンジ</option>
+<option>ターニャ</option>
+<option>ボンドルド</option>
+<option>ゴン</option>
+<option>シャドウ</option>
+<option>アーチャー</option>
+</optgroup>
+
+<optgroup label="ガンナー">
+<option>リリカ</option>
+<option value="ルチアーノ" selected>ルチアーノ</option>
+<option>深川 まとい</option>
+<option>13 †サーティーン†</option>
+<option>メグメグ</option>
+<option>イスタカ</option>
+<option>ソーン=ユーリエフ</option>
+<option>ニーズヘッグ</option>
+<option>ゲームバズーカガール</option>
+<option>糸廻 輪廻</option>
+<option>Bugdoll</option>
+<option>天空王 ぶれいずどらごん</option>
+<option>みりぽゆ</option>
+<option>メルーニャ</option>
+<option>ディズィー</option>
+<option>エミリア</option>
+<option>鏡音 リン</option>
+<option>猫宮 ひなた</option>
+<option>岡部 倫太郎</option>
+<option>ギルガメッシュ</option>
+<option>芥川龍之介</option>
+<option>アインズ・ウール・ゴウン</option>
+<option>アクセラレータ</option>
+<option>ロキシー・ミグルディア</option>
+<option>ロックマン.EXE & 光熱斗</option>
+<option>シノン</option>
+<option>ランサー</option>
+<option>レゼ</option>
+</optgroup>
+
+<optgroup label="タンク">
+<option>ジャスティス ハンコック</option>
+<option>ジャンヌ ダルク</option>
+<option>グスタフ ハイドリヒ</option>
+<option>ヴィオレッタ ノワール</option>
+<option>トマス</option>
+<option>青春アリス</option>
+<option>ラヴィ・シュシュマルシュ</option>
+<option>アミスター=バランディン</option>
+<option>鬼ヶ式 うら</option>
+<option>†ファースト†</option>
+<option>鏡音 レン</option>
+<option>モノクマ</option>
+<option>めぐみん</option>
+<option>佐藤四郎兵衛忠信</option>
+<option>ライザリン・シュタウト</option>
+<option>ポプ子＆ピピ美</option>
+</optgroup>
+
+</template>
+
+<h1>デッキルーレット</h1>
+
+<div class="app-container">
+
+<div class="main-sec">
+    <div id="playerList"></div>
+
+    <button id="startBtn" class="btn-start" onclick="drawDeck()">START</button>
+
+    <div class="result-container">
+        <button id="copyAllBtn" class="btn-copy-all" style="display:none;" onclick="copyAllResults(this)">📋 全結果をコピー</button>
+        <div id="resultArea"></div>
+    </div>
+
+    <details class="notice-box" open>
+    <summary>📢 お知らせ・アップデート</summary>
+    <div class="notice-content">
+
+        <div class="notice-item">
+            <div class="notice-version">アップデート <span class="notice-date">2026/08/27</span></div>
+            <div class="notice-detail">
+                ・名前プリセットの循環ボタンを「次の順番」「前の順番」に変更。<br>
+                ・🔼 🔽で1人ずつ循環できるようになりました。<br>
+                ・次の順番／前の順番は、抽選人数－ロック人数分だけ循環します。<br>
+                例：抽選人数3人で1人ロック中 → 2人分移動<br>
+                ・お知らせ欄の内容をスクロールできるようにしました。<br>
+                ・過去のアップデート内容を下に残して確認できるようにしました。
+            </div>
+        </div>
+
+        <div class="notice-item">
+            <div class="notice-version">アップデート <span class="notice-date">2026/08/26</span></div>
+            <div class="notice-detail">
+                ・お知らせ・アップデート情報を見れるようにしました。<br>
+                ・ルーレットのSEを一部変更しました<br>
+                ・ルーレット演出のUIを一部変更しました。
+            </div>
+        </div>
+
+        <div class="notice-item">
+            <div class="notice-version">アップデート <span class="notice-date">2026/08/25</span></div>
+            <div class="notice-detail">
+                ・ルーレットに短縮版とドパガキ版を追加しました。<br>
+                ・ルチ不遇ボタンを追加しました。<br>
+                （ドパガキ版にて、指定ヒーローがルチアーノになると強制的に同カード4枚になるボタンです。ルチ不遇ボタンのチェックを解除すればその機能は無くなります。）
+            </div>
+        </div>
+
+        <div class="notice-item">
+            <div class="notice-version">お知らせ <span class="notice-date">2026/08/25</span></div>
+            <div class="notice-detail">
+                ・ルーレットサイト使用の際には、最初に<br>
+                Ctrl＋Shift＋R<br>
+                を押下して、ページを更新してから使用するようにお願いします。前回のキャッシュが残っており、アップデート内容が正常に反映されない可能性があります。
+            </div>
+        </div>
+
+        <div class="notice-item">
+            <div class="notice-version">アップデート <span class="notice-date">2026/08/24</span></div>
+            <div class="notice-detail">
+                ・名前プリセットのロック機能を追加。<br>
+                ・名前プリセットを循環できる機能を追加。<br>
+                ・抽選人数に合わせて名前をまとめて更新できるようにしました。
+            </div>
+        </div>
+
+        <div class="notice-item">
+            <div class="notice-version">アップデート <span class="notice-date">2026/08/23</span></div>
+            <div class="notice-detail">
+                ・ルーレット機能を実装しました。<br>
+                ・過去の抽選ログが閲覧できるようにしました。<br>
+                ・UIを一部変更しました<br>
+                ・ヒーローのみのリロール機能を実装しました。<br>
+                ・カード抽選の確率を5段階で調整できる機能を追加しました。
+            </div>
+        </div>
+
+    </div>
+</details>
+
+<details class="log-box">
+        <summary>抽選ログ</summary>
+        <div class="log-controls">
+            <button class="log-btn" onclick="clearLogs()">ログを削除</button>
+        </div>
+        <div id="logArea"></div>
+    </details>
+</div>
+
+<div class="side-sec">
+    <h2>オプション</h2>
+
+    <label for="memberCount">人数</label>
+    <select id="memberCount" onchange="buildPlayerInputs()">
+        <option value="1">1人</option>
+        <option value="2">2人</option>
+        <option value="3">3人</option>
+        <option value="4">4人</option>
+        <option value="5">5人</option>
+        <option value="6">6人</option>
+        <option value="7">7人</option>
+        <option value="8">8人</option>
+        <option value="9">9人</option>
+        <option value="10">10人</option>
+    </select>
+
+    <!-- 名前プリセット設定 -->
+    <details class="preset-box" open>
+        <summary>名前プリセット</summary>
+        <div class="preset-list-container">
+            <div class="preset-rotate-controls">
+                <button type="button" class="btn-rotate" onclick="rotatePresetUp()">次の順番</button>
+                <button type="button" class="btn-rotate" onclick="rotatePresetDown()">前の順番</button>
+                <button type="button" class="btn-rotate btn-rotate-mini" onclick="rotatePresetUpOne()">🔼</button>
+                <button type="button" class="btn-rotate btn-rotate-mini" onclick="rotatePresetDownOne()">🔽</button>
+            </div>
+            <div id="presetList"></div>
+            <button class="btn-update-names" onclick="applyPresetNames()">名前を更新</button>
+        </div>
+    </details>
+
+    <details class="probability-box">
+        <summary>カード確率設定</summary>
+        <div class="probability-list">
+            <div id="probabilityControls"></div>
+            <button class="reset-btn" onclick="resetProbabilities()">確率を初期値に戻す</button>
+        </div>
+    </details>
+
+    <div class="effect-option">
+        <label>
+            <!-- デフォルトは演出なし（未チェック） -->
+            <input type="checkbox" id="effectToggle" onchange="toggleEffectOption()">
+            ルーレット演出あり
+        </label>
+
+        <div id="effectDetails" class="effect-details">
+            <div class="roulette-mode-group">
+                <label><input type="radio" name="rouletteMode" value="normal" checked onchange="toggleTargetHeroBox()"> 通常版</label>
+                <label><input type="radio" name="rouletteMode" value="short" onchange="toggleTargetHeroBox()"> 短縮版</label>
+                <label><input type="radio" name="rouletteMode" value="slokas" onchange="toggleTargetHeroBox()"> ドパガキ版</label>
+            </div>
+
+            <div id="targetHeroBox" class="target-hero-box">
+                <label for="targetCardSelect">🎯 当たり枠カード設定</label>
+                <select id="targetCardSelect"></select>
+                <div class="luciano-hugu-option">
+                    <label style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">
+                        <input type="checkbox" id="lucianoHuguToggle"> ルチ不遇
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- =========================
+     ルーレット Overlay
+========================= -->
+
+<div id="rouletteOverlay">
+<div class="roulette-window" id="rouletteWindow">
+
+    <div id="reachBanner" class="reach-banner" style="display:none;"></div>
+
+    <div id="roulettePlayer" class="roulette-player"></div>
+    <div id="rouletteTitle" class="roulette-title"></div>
+
+    <!-- 通常・スロカス用スロット -->
+    <div id="singleSlotContainer">
+        <div id="rouletteSlot" class="roulette-slot">
+            <div id="rouletteValue" class="roulette-value"></div>
+        </div>
+    </div>
+
+    <!-- 短縮版用マルチスロット -->
+    <div id="multiSlotContainer" class="multi-slot-grid" style="display:none;">
+        <div class="slot-box type-hero" id="slotBoxHero">
+            <div class="slot-tag">HERO</div>
+            <div class="slot-val" id="slotValHero">-</div>
+        </div>
+        <div class="cards-4-grid">
+            <div class="slot-box" id="slotBoxC1">
+                <div class="slot-tag">CARD 1</div>
+                <div class="slot-val" id="slotValC1">-</div>
+            </div>
+            <div class="slot-box" id="slotBoxC2">
+                <div class="slot-tag">CARD 2</div>
+                <div class="slot-val" id="slotValC2">-</div>
+            </div>
+            <div class="slot-box" id="slotBoxC3">
+                <div class="slot-tag">CARD 3</div>
+                <div class="slot-val" id="slotValC3">-</div>
+            </div>
+            <div class="slot-box" id="slotBoxC4">
+                <div class="slot-tag">CARD 4</div>
+                <div class="slot-val" id="slotValC4">-</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rouletteCardList" class="roulette-card-list"></div>
+
+    <button id="skipBtn" class="btn-skip" type="button" onclick="skipRoulette()">⏭ スキップ</button>
+
+</div>
+</div>
+
+<script>
+
+/* =========================================================
+   基本データ
+========================================================= */
+
+let globalAllHeroes = [];
+
+const cardTypes = [
+    "近距離", "遠距離", "連続", "周囲",
+    "回復", "ガード", "強化", "弱体化",
+    "移動", "設置", "カウンター", "その他"
+];
+
+let probabilities = {};
+cardTypes.forEach(type => {
+    probabilities[type] = 3;
+});
+
+let namePresets = [
+    { name: "名無し１", locked: false },
+    { name: "名無し２", locked: false },
+    { name: "name無し３", locked: false },
+    { name: "名無し４", locked: false },
+    { name: "名無し５", locked: false }
+];
+
+/* =========================================================
+   ワンタップコピー機能
+========================================================= */
+
+function copyToClipboard(text, btnElement) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+            showCopyFeedback(btnElement);
+        }).catch(() => {
+            fallbackCopyTextToClipboard(text, btnElement);
+        });
+    } else {
+        fallbackCopyTextToClipboard(text, btnElement);
+    }
+}
+
+function fallbackCopyTextToClipboard(text, btnElement) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        showCopyFeedback(btnElement);
+    } catch (err) {
+        alert("コピーに失敗しました");
+    }
+    document.body.removeChild(textArea);
+}
+
+function showCopyFeedback(btnElement) {
+    if (!btnElement) return;
+    const originalText = btnElement.textContent;
+    btnElement.textContent = "✔ コピー完了！";
+    btnElement.style.backgroundColor = "#2f855a";
+    btnElement.style.color = "#ffffff";
+    setTimeout(() => {
+        btnElement.textContent = originalText;
+        btnElement.style.backgroundColor = "";
+        btnElement.style.color = "";
+    }, 1500);
+}
+
+function copySingleResult(index, btnElement) {
+    const resBlock = document.getElementById(`resBlock_${index}`);
+    if (!resBlock || !resBlock.__playerData) return;
+    const p = resBlock.__playerData;
+    const text = formatPlayerDataText(p);
+    copyToClipboard(text, btnElement);
+}
+
+function copyAllResults(btnElement) {
+    const resBlocks = document.querySelectorAll(".player-res");
+    if (!resBlocks.length) return;
+
+    let textList = [];
+    resBlocks.forEach(block => {
+        if (block.__playerData) {
+            textList.push(formatPlayerDataText(block.__playerData));
+        }
+    });
+
+    const text = "【デッキルーレット結果】\n" + textList.join("\n\n");
+    copyToClipboard(text, btnElement);
+}
+
+function formatPlayerDataText(p) {
+    const teamText = p.team === "red" ? "【赤チーム】" : "【青チーム】";
+    return `${teamText} ${p.name}\nヒーロー：${p.heroResult}\nカード：${p.cardsResult.join(' / ')}`;
+}
+
+/* =========================================================
+   UI制御（演出オプション開閉＆当たり枠制御）
+========================================================= */
+
+function toggleEffectOption() {
+    const isChecked = document.getElementById("effectToggle").checked;
+    const details = document.getElementById("effectDetails");
+    details.style.display = isChecked ? "block" : "none";
+    if (isChecked) {
+        toggleTargetHeroBox();
+    }
+}
+
+function toggleTargetHeroBox() {
+    const mode = getSelectedRouletteMode();
+    const box = document.getElementById("targetHeroBox");
+    // ドパガキ版を選択時のみ当たり枠カードを表示
+    box.style.display = (mode === "slokas") ? "block" : "none";
+}
+
+/* =========================================================
+   音（通常／激熱サウンド効果）
+========================================================= */
+
+let audioContext = null;
+
+function initAudio() {
+    if (!audioContext) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+            audioContext = new AudioCtx();
+        }
+    }
+    if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+}
+
+function playTick(freq = 650) {
+    if (!audioContext) return;
+    try {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "square";
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+        gain.gain.setValueAtTime(0.035, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.045);
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.05);
+    } catch(e){}
+}
+
+function playDecisionSound() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(520, now);
+        oscillator.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(now + 0.26);
+    } catch(e){}
+}
+
+/* 文字表示音 */
+function playCharSound() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.1);
+    } catch(e){}
+}
+
+/* 暗転（ピチュる）SE */
+function playPichuSound() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(2000, now);
+        osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } catch(e){}
+}
+
+/* スロカス特有：ファンファーレ＆キュインSE */
+function playSlokasKyuin() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        for(let i = 0; i < 8; i++) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(1400 + (i % 2) * 500, now + i * 0.05);
+            gain.gain.setValueAtTime(0.2, now + i * 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (i + 1) * 0.05);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(now + i * 0.05);
+            osc.stop(now + (i + 1) * 0.05);
+        }
+    } catch(e){}
+}
+
+/* 当たり枠カード確定時の超弩級サウンド */
+function playTargetCardJackpotSound() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        for (let i = 0; i < 12; i++) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(300 + (i * 120), now + i * 0.04);
+            gain.gain.setValueAtTime(0.2, now + i * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (i + 1) * 0.04);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(now + i * 0.04);
+            osc.stop(now + (i + 1) * 0.04);
+        }
+    } catch(e){}
+}
+
+/* 最終結果SE：ハッピー（当たり枠あり） */
+function playHappyResultSE() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.25, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.35);
+        });
+    } catch(e){}
+}
+
+/* ルチ不遇成功時専用：超豪華リザルトSE */
+function playLucianoJackpotResultSE() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        const melody = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+        melody.forEach((freq, idx) => {
+            [freq, freq * 1.5].forEach((f, layer) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = layer === 0 ? "sawtooth" : "triangle";
+                const t = now + idx * 0.11;
+                osc.frequency.setValueAtTime(f, t);
+                gain.gain.setValueAtTime(layer === 0 ? 0.18 : 0.11, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.42);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start(t);
+                osc.stop(t + 0.43);
+            });
+        });
+        for (let i = 0; i < 3; i++) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const t = now + 0.72 + i * 0.08;
+            osc.type = "square";
+            osc.frequency.setValueAtTime(180 + i * 120, t);
+            gain.gain.setValueAtTime(0.22, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.start(t); osc.stop(t + 0.26);
+        }
+    } catch(e){}
+}
+
+/* ドパガキ版：当たりなし専用「デデン↓」 */
+function playDedennResultSE() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        const notes = [293.66, 220.00]; // D4 -> A3
+        notes.forEach((freq, idx) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const t = now + idx * 0.22;
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.24, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.start(t); osc.stop(t + 0.4);
+        });
+    } catch(e){}
+}
+
+/* 最終結果SE：通常版用（明るい決定音） */
+function playNormalResultSE() {
+    if (!audioContext) return;
+    try {
+        const now = audioContext.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const t = now + idx * 0.09;
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.18, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(t);
+            osc.stop(t + 0.31);
+        });
+    } catch(e){}
+}
+
+/* =========================================================
+   名前プリセット管理機能
+========================================================= */
+
+function loadPresets() {
+    const saved = localStorage.getItem("deckRoulettePresets");
+    if (saved) {
+        try {
+            const raw = JSON.parse(saved);
+            namePresets = raw.map(item => {
+                if (typeof item === "string") {
+                    return { name: item, locked: false };
+                }
+                return item;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+}
+
+function savePresets() {
+    localStorage.setItem("deckRoulettePresets", JSON.stringify(namePresets));
+}
+
+function renderPresets() {
+    const container = document.getElementById("presetList");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    namePresets.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.className = `preset-row ${item.locked ? 'locked' : ''}`;
+
+        const lockIcon = item.locked ? "🔒" : "🔓";
+        const lockTitle = item.locked ? "固定ON（解除する）" : "固定OFF（固定する）";
+
+        row.innerHTML = `
+            <div class="preset-num">${idx + 1}</div>
+            <button type="button" class="preset-btn-lock ${item.locked ? 'is-locked' : ''}" onclick="togglePresetLock(${idx})" title="${lockTitle}">${lockIcon}</button>
+            <input type="text" class="preset-input" value="${escapeHtml(item.name)}" onchange="updatePresetValue(${idx}, this.value)">
+            <button type="button" class="preset-btn-mini" onclick="movePresetUp(${idx})" title="ひとつ上と入替">↑</button>
+            <button type="button" class="preset-btn-mini" onclick="movePresetDown(${idx})" title="ひとつ下と入替">↓</button>
+            <button type="button" class="preset-btn-mini" onclick="addPresetRow(${idx})" title="下に挿入">＋</button>
+            <button type="button" class="preset-btn-mini" onclick="deletePresetRow(${idx})" title="削除">🗑️</button>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function togglePresetLock(idx) {
+    namePresets[idx].locked = !namePresets[idx].locked;
+    savePresets();
+    renderPresets();
+}
+
+function updatePresetValue(idx, val) {
+    namePresets[idx].name = val;
+    savePresets();
+}
+
+function movePresetUp(idx) {
+    if (idx <= 0) return;
+    if (namePresets[idx].locked || namePresets[idx - 1].locked) {
+        alert("固定されている項目は位置を変更できません。");
+        return;
+    }
+    const temp = namePresets[idx];
+    namePresets[idx] = namePresets[idx - 1];
+    namePresets[idx - 1] = temp;
+    savePresets();
+    renderPresets();
+}
+
+function movePresetDown(idx) {
+    if (idx >= namePresets.length - 1) return;
+    if (namePresets[idx].locked || namePresets[idx + 1].locked) {
+        alert("固定されている項目は位置を変更できません。");
+        return;
+    }
+    const temp = namePresets[idx];
+    namePresets[idx] = namePresets[idx + 1];
+    namePresets[idx + 1] = temp;
+    savePresets();
+    renderPresets();
+}
+
+function rotateUnlockedPresets(step) {
+    const unlockedIndices = [];
+    const unlockedValues = [];
+
+    namePresets.forEach((item, idx) => {
+        if (!item.locked) {
+            unlockedIndices.push(idx);
+            unlockedValues.push(item);
+        }
+    });
+
+    if (unlockedValues.length <= 1) return;
+
+    step = ((step % unlockedValues.length) + unlockedValues.length) % unlockedValues.length;
+    const rotated = unlockedValues.slice(step).concat(unlockedValues.slice(0, step));
+
+    unlockedIndices.forEach((targetIdx, i) => {
+        namePresets[targetIdx] = rotated[i];
+    });
+
+    savePresets();
+    renderPresets();
+}
+
+function rotatePresetUpOne() {
+    rotateUnlockedPresets(1);
+}
+
+function rotatePresetDownOne() {
+    rotateUnlockedPresets(-1);
+}
+
+function getPresetRotateStep() {
+    const memberCount = parseInt(document.getElementById("memberCount").value, 10) || 1;
+    const lockedCount = namePresets.filter(item => item.locked).length;
+    return Math.max(1, memberCount - lockedCount);
+}
+
+function rotatePresetUp() {
+    rotateUnlockedPresets(getPresetRotateStep());
+}
+
+function rotatePresetDown() {
+    rotateUnlockedPresets(-getPresetRotateStep());
+}
+
+function addPresetRow(idx) {
+    namePresets.splice(idx + 1, 0, { name: `名無し${namePresets.length + 1}`, locked: false });
+    savePresets();
+    renderPresets();
+}
+
+function deletePresetRow(idx) {
+    if (namePresets.length <= 1) {
+        alert("プリセットは最低1つ残す必要があります。");
+        return;
+    }
+    namePresets.splice(idx, 1);
+    savePresets();
+    renderPresets();
+}
+
+function applyPresetNames() {
+    const inputs = document.querySelectorAll("#playerList .p-name");
+    inputs.forEach((input, idx) => {
+        if (idx < namePresets.length) {
+            input.value = namePresets[idx].name;
+        } else {
+            input.value = `名無し${idx + 1}`;
+        }
+    });
+}
+
+/* =========================================================
+   プレイヤー入力
+========================================================= */
+
+function buildPlayerInputs() {
+    const count = parseInt(document.getElementById("memberCount").value, 10);
+    const container = document.getElementById("playerList");
+    const oldCards = container.querySelectorAll(".player-card");
+    const savedData = [];
+
+    oldCards.forEach(card => {
+        const nameVal = card.querySelector(".p-name").value;
+        const modeVal = card.querySelector('input[type="radio"]:checked')?.value || "random";
+        const heroVal = card.querySelector(".p-hero")?.value || "";
+
+        savedData.push({
+            name: nameVal,
+            mode: modeVal,
+            hero: heroVal
+        });
+    });
+
+    container.innerHTML = "";
+    const tpl = document.getElementById("heroOptions");
+
+    for (let i = 1; i <= count; i++) {
+        const card = document.createElement("div");
+        card.className = "player-card";
+
+        const prev = savedData[i - 1];
+        const presetObj = namePresets[i - 1];
+        const presetName = presetObj ? presetObj.name : "";
+        const defaultName = count === 1 ? "名無し" : (presetName || `名無し${i}`);
+        const isSelectMode = prev?.mode === "select";
+
+        card.innerHTML = `
+            <div class="card-title">
+                ${count === 1 ? "プレイヤー設定" : "プレイヤー " + i}
+            </div>
+
+            <label>名前</label>
+            <input type="text" class="p-name" value="${escapeHtml(prev ? prev.name : defaultName)}">
+
+            <div class="mode-select">
+                <label>
+                    <input type="radio" name="mode_${i}" value="random" ${!isSelectMode ? "checked" : ""} onchange="toggleHeroBox(${i})">
+                    ランダム
+                </label>
+                <label>
+                    <input type="radio" name="mode_${i}" value="select" ${isSelectMode ? "checked" : ""} onchange="toggleHeroBox(${i})">
+                    選択
+                </label>
+            </div>
+
+            <div class="hero-box" id="heroBox_${i}" style="display: ${isSelectMode ? "block" : "none"};">
+                <select class="p-hero" id="heroSelect_${i}"></select>
+            </div>
+        `;
+
+        container.appendChild(card);
+        const selectEl = card.querySelector(".p-hero");
+        selectEl.appendChild(tpl.content.cloneNode(true));
+
+        if (prev?.hero) {
+            selectEl.value = prev.hero;
+        }
+    }
+}
+
+/* =========================================================
+   HTMLエスケープ
+========================================================= */
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/* =========================================================
+   ヒーロー選択表示
+========================================================= */
+
+function toggleHeroBox(index) {
+    const mode = document.querySelector(`input[name="mode_${index}"]:checked`).value;
+    const box = document.getElementById(`heroBox_${index}`);
+    box.style.display = mode === "select" ? "block" : "none";
+}
+
+/* =========================================================
+   確率UI
+========================================================= */
+
+function buildProbabilityControls() {
+    const container = document.getElementById("probabilityControls");
+    container.innerHTML = "";
+
+    cardTypes.forEach(type => {
+        const div = document.createElement("div");
+        div.className = "prob-item";
+
+        div.innerHTML = `
+            <div class="prob-header">
+                <span>${type}</span>
+                <span class="prob-value" id="probValue_${type}"></span>
+            </div>
+            <input class="prob-slider" type="range" min="1" max="5" step="1" value="${probabilities[type]}" oninput="updateProbability('${type}', this.value)">
+            <div class="prob-scale">
+                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            </div>
+        `;
+
+        container.appendChild(div);
+        updateProbabilityLabel(type);
+    });
+}
+
+function getProbabilityWeight(level) {
+    return (level - 1) * 5;
+}
+
+function updateProbability(type, value) {
+    probabilities[type] = parseInt(value, 10);
+    updateProbabilityLabel(type);
+}
+
+function updateProbabilityLabel(type) {
+    const value = probabilities[type];
+    const labels = { 1: "0%", 2: "5%", 3: "10%", 4: "15%", 5: "20%" };
+    const el = document.getElementById(`probValue_${type}`);
+    if (el) el.textContent = labels[value];
+}
+
+function resetProbabilities() {
+    cardTypes.forEach(type => {
+        probabilities[type] = 3;
+    });
+    buildProbabilityControls();
+}
+
+/* =========================================================
+   重み付き抽選
+========================================================= */
+
+function pickWeightedCard() {
+    const entries = cardTypes
+        .map(type => ({ type, weight: getProbabilityWeight(probabilities[type]) }))
+        .filter(item => item.weight > 0);
+
+    if (entries.length === 0) {
+        return cardTypes[Math.floor(Math.random() * cardTypes.length)];
+    }
+
+    const total = entries.reduce((sum, item) => sum + item.weight, 0);
+    let random = Math.random() * total;
+
+    for (const item of entries) {
+        random -= item.weight;
+        if (random <= 0) return item.type;
+    }
+
+    return entries[entries.length - 1].type;
+}
+
+/* =========================================================
+   カード生成
+========================================================= */
+
+function createCards() {
+    const pickedCards = [];
+    for (let i = 0; i < 4; i++) {
+        pickedCards.push(pickWeightedCard());
+    }
+    return pickedCards;
+}
+
+/* =========================================================
+   ヒーロー名表示
+========================================================= */
+
+function heroNameHtml(name) {
+    return `<span>${escapeHtml(name)}</span>`;
+}
+
+/* =========================================================
+   結果表示
+========================================================= */
+
+function renderPlayerResult(playerData, container) {
+    let cardsHtml = "";
+
+    playerData.cardsResult.forEach((cName, idx) => {
+        cardsHtml += `
+            <div class="type-${cName}">
+                <div class="card-row">
+                    <div class="card-num">${idx + 1}</div>
+                    <div class="card-label">${cName}</div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = `
+        <div class="res-header">
+            <span class="res-pname">${escapeHtml(playerData.name)}</span>
+            <div class="res-hero">${heroNameHtml(playerData.heroResult)}</div>
+        </div>
+
+        <div class="result-actions">
+            <button class="btn-copy-single" onclick="copySingleResult(${playerData.index}, this)">📋 コピー</button>
+            <button class="btn-reroll-hero" onclick="rerollHero(${playerData.index})">🎲 ヒーロー</button>
+            <button class="btn-reroll-card" onclick="rerollCards(${playerData.index})">🎲 カード</button>
+        </div>
+
+        <div class="res-cards">${cardsHtml}</div>
+    `;
+}
+
+/* =========================================================
+   チーム分け
+========================================================= */
+
+function getTeamAssignments(total) {
+    const redCount = Math.ceil(total / 2);
+    const teams = [];
+
+    for (let i = 0; i < redCount; i++) teams.push("red");
+    for (let i = redCount; i < total; i++) teams.push("blue");
+
+    for (let i = teams.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [teams[i], teams[j]] = [teams[j], teams[i]];
+    }
+
+    return teams;
+}
+
+/* =========================================================
+   ルーレット制御
+========================================================= */
+
+let rouletteSkipRequested = false;
+
+function skipRoulette() { rouletteSkipRequested = true; }
+function resetRouletteSkip() { rouletteSkipRequested = false; }
+
+async function rouletteWait(ms) {
+    const step = 30;
+    let elapsed = 0;
+    while (elapsed < ms && !rouletteSkipRequested) {
+        const current = Math.min(step, ms - elapsed);
+        await wait(current);
+        elapsed += current;
+    }
+}
+
+async function holdRouletteResult(ms) {
+    const elapsedStep = 50;
+    let elapsed = 0;
+    while (elapsed < ms) {
+        if (rouletteSkipRequested) {
+            rouletteSkipRequested = false;
+            return;
+        }
+        const current = Math.min(elapsedStep, ms - elapsed);
+        await wait(current);
+        elapsed += current;
+    }
+}
+
+function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function setRouletteColor(className) {
+    const slot = document.getElementById("rouletteSlot");
+    slot.className = "roulette-slot";
+    if (className) slot.classList.add(className);
+}
+
+function getSelectedRouletteMode() {
+    const checked = document.querySelector('input[name="rouletteMode"]:checked');
+    return checked ? checked.value : "normal";
+}
+
+function prepareRouletteUI(mode) {
+    const win = document.getElementById("rouletteWindow");
+    const reach = document.getElementById("reachBanner");
+    const single = document.getElementById("singleSlotContainer");
+    const multi = document.getElementById("multiSlotContainer");
+    const overlay = document.getElementById("rouletteOverlay");
+
+    win.classList.remove("slokas-window");
+    overlay.classList.remove("blackout");
+    reach.style.display = "none";
+
+    if (mode === "short") {
+        single.style.display = "none";
+        multi.style.display = "grid";
+    } else {
+        single.style.display = "block";
+        multi.style.display = "none";
+        if (mode === "slokas") {
+            win.classList.add("slokas-window");
+        }
+    }
+}
+
+/* =========================================================
+   通常版：ヒーロールーレット
+========================================================= */
+
+async function rouletteAnimation(playerName, title, values, finalValue, team) {
+    resetRouletteSkip();
+    prepareRouletteUI("normal");
+
+    const overlay = document.getElementById("rouletteOverlay");
+    const player = document.getElementById("roulettePlayer");
+    const titleEl = document.getElementById("rouletteTitle");
+    const valueEl = document.getElementById("rouletteValue");
+    const cardList = document.getElementById("rouletteCardList");
+
+    player.textContent = `${playerName} のルーレット`;
+    titleEl.textContent = title;
+    cardList.textContent = "";
+
+    overlay.classList.add("show");
+    setRouletteColor(team ? `team-${team}` : "");
+
+    for (let i = 0; i < 22; i++) {
+        if (rouletteSkipRequested) break;
+        valueEl.textContent = values[Math.floor(Math.random() * values.length)];
+        playTick();
+        await rouletteWait(Math.max(35, 100 - i * 3));
+    }
+
+    for (let i = 0; i < 5; i++) {
+        valueEl.textContent = values[Math.floor(Math.random() * values.length)];
+        playTick();
+        await rouletteWait(130 + i * 45);
+    }
+
+    valueEl.textContent = finalValue;
+    setRouletteColor(team ? `team-${team}` : "");
+
+    playSlokasKyuin();
+    await holdRouletteResult(1100);
+
+    overlay.classList.remove("show");
+}
+
+/* =========================================================
+   通常版：カードルーレット
+========================================================= */
+
+async function rouletteCardsAnimation(playerName, heroName, finalCards) {
+    resetRouletteSkip();
+    prepareRouletteUI("normal");
+
+    const overlay = document.getElementById("rouletteOverlay");
+    const player = document.getElementById("roulettePlayer");
+    const title = document.getElementById("rouletteTitle");
+    const value = document.getElementById("rouletteValue");
+    const cardList = document.getElementById("rouletteCardList");
+
+    player.textContent = `${playerName} のルーレット`;
+    overlay.classList.add("show");
+
+    for (let i = 0; i < finalCards.length; i++) {
+        title.textContent = `カード ${i + 1}枚目`;
+        cardList.textContent = `${i + 1} / ${finalCards.length} 枚目を抽選中`;
+
+        for (let j = 0; j < 22; j++) {
+            if (rouletteSkipRequested) break;
+            const randomCard = pickWeightedCard();
+            value.textContent = randomCard;
+            setRouletteColor(`type-${randomCard}`);
+            playTick();
+            await rouletteWait(Math.max(35, 100 - j * 3));
+        }
+
+        for (let j = 0; j < 5; j++) {
+            if (rouletteSkipRequested) break;
+            const randomCard = pickWeightedCard();
+            value.textContent = randomCard;
+            setRouletteColor(`type-${randomCard}`);
+            playTick();
+            await rouletteWait(130 + j * 45);
+        }
+
+        value.textContent = finalCards[i];
+        setRouletteColor(`type-${finalCards[i]}`);
+        value.classList.add("card-decided");
+
+        playSlokasKyuin();
+
+        await holdRouletteResult(1300);
+        value.classList.remove("card-decided");
+    }
+
+    title.textContent = `${playerName} のデッキ決定！`;
+
+    const formattedCards = finalCards.map((card, idx) => `
+        <div class="type-${card}" style="width: 100%; border-radius: 6px; overflow: hidden;">
+            <div class="card-row">
+                <div class="card-num">${idx + 1}</div>
+                <div class="card-label">${escapeHtml(card)}</div>
+            </div>
+        </div>
+    `).join("");
+
+    value.innerHTML = `
+        <div class="final-deck-result">
+            <div class="final-hero-name">【${escapeHtml(heroName)}】</div>
+            <div class="res-cards" style="margin-top: 6px;">
+                ${formattedCards}
+            </div>
+        </div>
+    `;
+
+    setRouletteColor("");
+    cardList.textContent = "ヒーローと4枚のカードが決まりました";
+
+    playNormalResultSE();
+
+    await holdRouletteResult(2200);
+
+    value.innerHTML = "";
+    overlay.classList.remove("show");
+}
+
+/* =========================================================
+   短縮版：5項目同時抽選演出（一括時）
+========================================================= */
+
+async function rouletteShortAnimation(player) {
+    resetRouletteSkip();
+    prepareRouletteUI("short");
+
+    const overlay = document.getElementById("rouletteOverlay");
+    const pEl = document.getElementById("roulettePlayer");
+    const titleEl = document.getElementById("rouletteTitle");
+    const cardList = document.getElementById("rouletteCardList");
+
+    pEl.textContent = `${player.name} の一括抽選`;
+    titleEl.textContent = "";
+    cardList.textContent = "";
+
+    const slotHero = document.getElementById("slotValHero");
+    const slotC1 = document.getElementById("slotValC1");
+    const slotC2 = document.getElementById("slotValC2");
+    const slotC3 = document.getElementById("slotValC3");
+    const slotC4 = document.getElementById("slotValC4");
+
+    const boxC1 = document.getElementById("slotBoxC1");
+    const boxC2 = document.getElementById("slotBoxC2");
+    const boxC3 = document.getElementById("slotBoxC3");
+    const boxC4 = document.getElementById("slotBoxC4");
+
+    overlay.classList.add("show");
+
+    let stoppedHero = false;
+    let stoppedC1 = false;
+    let stoppedC2 = false;
+    let stoppedC3 = false;
+
+    for (let frame = 0; frame < 30; frame++) {
+        if (rouletteSkipRequested) break;
+
+        if (!stoppedHero) {
+            slotHero.textContent = globalAllHeroes[Math.floor(Math.random() * globalAllHeroes.length)];
+        }
+        if (!stoppedC1) {
+            const r = pickWeightedCard();
+            slotC1.textContent = r;
+            boxC1.className = `slot-box type-${r}`;
+        }
+        if (!stoppedC2) {
+            const r = pickWeightedCard();
+            slotC2.textContent = r;
+            boxC2.className = `slot-box type-${r}`;
+        }
+        if (!stoppedC3) {
+            const r = pickWeightedCard();
+            slotC3.textContent = r;
+            boxC3.className = `slot-box type-${r}`;
+        }
+
+        const r4 = pickWeightedCard();
+        slotC4.textContent = r4;
+        boxC4.className = `slot-box type-${r4}`;
+
+        playTick(800);
+
+        if (frame === 10) { 
+            stoppedHero = true; 
+            slotHero.textContent = player.heroResult; 
+            playDecisionSound(); 
+        }
+        if (frame === 15) { 
+            stoppedC1 = true; 
+            slotC1.textContent = player.cardsResult[0]; 
+            boxC1.className = `slot-box type-${player.cardsResult[0]}`; 
+            playDecisionSound();
+        }
+        if (frame === 20) { 
+            stoppedC2 = true; 
+            slotC2.textContent = player.cardsResult[1]; 
+            boxC2.className = `slot-box type-${player.cardsResult[1]}`; 
+            playDecisionSound();
+        }
+        if (frame === 25) { 
+            stoppedC3 = true; 
+            slotC3.textContent = player.cardsResult[2]; 
+            boxC3.className = `slot-box type-${player.cardsResult[2]}`; 
+            playDecisionSound();
+        }
+
+        await rouletteWait(70);
+    }
+
+    slotHero.textContent = player.heroResult;
+    slotC1.textContent = player.cardsResult[0]; boxC1.className = `slot-box type-${player.cardsResult[0]}`;
+    slotC2.textContent = player.cardsResult[1]; boxC2.className = `slot-box type-${player.cardsResult[1]}`;
+    slotC3.textContent = player.cardsResult[2]; boxC3.className = `slot-box type-${player.cardsResult[2]}`;
+    slotC4.textContent = player.cardsResult[3]; boxC4.className = `slot-box type-${player.cardsResult[3]}`;
+    
+    playDecisionSound();
+
+    await holdRouletteResult(2800);
+    overlay.classList.remove("show");
+}
+
+/* =========================================================
+   短縮版：ヒーロー単体リロール演出
+========================================================= */
+
+async function rouletteShortHeroAnimation(playerName, finalHero) {
+    resetRouletteSkip();
+    prepareRouletteUI("normal");
+
+    const overlay = document.getElementById("rouletteOverlay");
+    const player = document.getElementById("roulettePlayer");
+    const titleEl = document.getElementById("rouletteTitle");
+    const valueEl = document.getElementById("rouletteValue");
+
+    player.textContent = `${playerName} のヒーローリロール`;
+    titleEl.textContent = "HERO";
+    overlay.classList.add("show");
+
+    for (let i = 0; i < 15; i++) {
+        if (rouletteSkipRequested) break;
+        valueEl.textContent = globalAllHeroes[Math.floor(Math.random() * globalAllHeroes.length)];
+        playTick(800);
+        await rouletteWait(50);
+    }
+
+    valueEl.textContent = finalHero;
+    playDecisionSound();
+    await holdRouletteResult(1000);
+    overlay.classList.remove("show");
+}
+
+/* =========================================================
+   短縮版：カード4枚リロール演出（短縮版スタイル）
+========================================================= */
+
+async function rouletteShortCardsAnimation(playerName, finalCards) {
+    resetRouletteSkip();
+    prepareRouletteUI("short");
+
+    const overlay = document.getElementById("rouletteOverlay");
+    const pEl = document.getElementById("roulettePlayer");
+    const titleEl = document.getElementById("rouletteTitle");
+
+    pEl.textContent = `${playerName} のカードリロール`;
+    titleEl.textContent = "";
+
+    const slotHero = document.getElementById("slotValHero");
+    const slotC1 = document.getElementById("slotValC1");
+    const slotC2 = document.getElementById("slotValC2");
+    const slotC3 = document.getElementById("slotValC3");
+    const slotC4 = document.getElementById("slotValC4");
+
+    const boxC1 = document.getElementById("slotBoxC1");
+    const boxC2 = document.getElementById("slotBoxC2");
+    const boxC3 = document.getElementById("slotBoxC3");
+    const boxC4 = document.getElementById("slotBoxC4");
+
+    slotHero.textContent = "保持";
+
+    overlay.classList.add("show");
+
+    let stoppedC1 = false, stoppedC2 = false, stoppedC3 = false;
+
+    for (let frame = 0; frame < 20; frame++) {
+        if (rouletteSkipRequested) break;
+
+        if (!stoppedC1) {
+            const r = pickWeightedCard(); slotC1.textContent = r; boxC1.className = `slot-box type-${r}`;
+        }
+        if (!stoppedC2) {
+            const r = pickWeightedCard(); slotC2.textContent = r; boxC2.className = `slot-box type-${r}`;
+        }
+        if (!stoppedC3) {
+            const r = pickWeightedCard(); slotC3.textContent = r; boxC3.className = `slot-box type-${r}`;
+        }
+        const r4 = pickWeightedCard(); slotC4.textContent = r4; boxC4.className = `slot-box type-${r4}`;
+
+        playTick(800);
+
+        if (frame === 5) { stoppedC1 = true; slotC1.textContent = finalCards[0]; boxC1.className = `slot-box type-${finalCards[0]}`; playDecisionSound(); }
+        if (frame === 10) { stoppedC2 = true; slotC2.textContent = finalCards[1]; boxC2.className = `slot-box type-${finalCards[1]}`; playDecisionSound(); }
+        if (frame === 15) { stoppedC3 = true; slotC3.textContent = finalCards[2]; boxC3.className = `slot-box type-${finalCards[2]}`; playDecisionSound(); }
+
+        await rouletteWait(70);
+    }
+
+    slotC1.textContent = finalCards[0]; boxC1.className = `slot-box type-${finalCards[0]}`;
+    slotC2.textContent = finalCards[1]; boxC2.className = `slot-box type-${finalCards[1]}`;
+    slotC3.textContent = finalCards[2]; boxC3.className = `slot-box type-${finalCards[2]}`;
+    slotC4.textContent = finalCards[3]; boxC4.className = `slot-box type-${finalCards[3]}`;
+
+    playDecisionSound();
+    await holdRouletteResult(1800);
+    overlay.classList.remove("show");
+}
+
+/* =========================================================
+   ドパガキ版：ドパドパ激熱演出
+========================================================= */
+
+async function rouletteSlokasAnimation(player, rerollPart = "all") {
+    resetRouletteSkip();
+    prepareRouletteUI("slokas");
+
+    const overlay = document.getElementById("rouletteOverlay");
+    const win = document.getElementById("rouletteWindow");
+    const pEl = document.getElementById("roulettePlayer");
+    const titleEl = document.getElementById("rouletteTitle");
+    const valueEl = document.getElementById("rouletteValue");
+    const cardList = document.getElementById("rouletteCardList");
+    const reach = document.getElementById("reachBanner");
+    const slot = document.getElementById("rouletteSlot");
+    const targetHero = "ルチアーノ";
+    const targetCard = document.getElementById("targetCardSelect").value || "設置";
+
+    pEl.textContent = `🔔 ${player.name} 🔔`;
+    titleEl.textContent = "";
+    cardList.textContent = "";
+
+    overlay.classList.add("show");
+
+    if (rerollPart !== "cards") {
+        setRouletteColor(`team-${player.team}`);
+        for (let i = 0; i < 18; i++) {
+            if (rouletteSkipRequested) break;
+            valueEl.textContent = globalAllHeroes[Math.floor(Math.random() * globalAllHeroes.length)];
+            playTick(1200);
+            await rouletteWait(60);
+        }
+        
+        if (player.heroResult === targetHero) {
+            overlay.classList.add("blackout");
+            valueEl.textContent = "";
+            playPichuSound();
+            await rouletteWait(800);
+
+            overlay.classList.remove("blackout");
+
+            const charList = Array.from(targetHero);
+            let displayed = "";
+            
+            for (let c of charList) {
+                if (rouletteSkipRequested) break;
+                displayed += c;
+                valueEl.innerHTML = `<span class="luciano-text">${displayed}</span>`;
+                playCharSound();
+                valueEl.classList.add("dopagaki-flash-multi");
+                await rouletteWait(220);
+                valueEl.classList.remove("dopagaki-flash-multi");
+            }
+            
+            reach.style.display = "block";
+            reach.innerHTML = `<span class="gold-text">🔥 確定 🔥</span>`;
+            playSlokasKyuin();
+            win.classList.add("rainbow-flash");
+            valueEl.classList.add("dopagaki-flash-multi");
+            
+            await rouletteWait(800);
+            win.classList.remove("rainbow-flash");
+            valueEl.classList.remove("dopagaki-flash-multi");
+            reach.style.display = "none";
+        } else {
+            valueEl.textContent = player.heroResult;
+            playSlokasKyuin();
+            valueEl.classList.add("dopagaki-flash-multi");
+            await rouletteWait(400);
+            valueEl.classList.remove("dopagaki-flash-multi");
+        }
+    }
+
+    if (rerollPart === "hero") {
+        await holdRouletteResult(1000);
+        overlay.classList.remove("show");
+        return;
+    }
+
+    const cards = player.cardsResult;
+    if (rerollPart === "cards") {
+        titleEl.textContent = "CARD REROLL";
+        valueEl.textContent = "";
+        setRouletteColor("");
+    }
+
+    for (let i = 0; i < cards.length; i++) {
+        titleEl.textContent = `CARD ${i+1} / 4`;
+
+        for (let j = 0; j < 12; j++) {
+            if (rouletteSkipRequested) break;
+            const tmp = pickWeightedCard();
+            valueEl.textContent = tmp;
+            setRouletteColor(`type-${tmp}`);
+            playTick(1000);
+            await rouletteWait(55);
+        }
+
+        valueEl.textContent = cards[i];
+        setRouletteColor(`type-${cards[i]}`);
+
+        if (cards[i] === targetCard) {
+            playTargetCardJackpotSound();
+            slot.classList.add("target-card-jackpot");
+            valueEl.classList.add("dopagaki-flash-multi");
+            await rouletteWait(900);
+            slot.classList.remove("target-card-jackpot");
+            valueEl.classList.remove("dopagaki-flash-multi");
+        } else {
+            playSlokasKyuin();
+            win.classList.add("rainbow-flash");
+            await rouletteWait(300);
+            win.classList.remove("rainbow-flash");
+        }
+    }
+
+    titleEl.textContent = "";
+
+    win.classList.add("rainbow-flash");
+
+    const lucianoHuguSuccess = document.getElementById("lucianoHuguToggle").checked && player.heroResult === targetHero;
+    if (lucianoHuguSuccess) {
+        playLucianoJackpotResultSE();
+    } else if (cards.includes(targetCard) || player.heroResult === targetHero) {
+        playHappyResultSE();
+    } else {
+        playDedennResultSE();
+    }
+
+    valueEl.innerHTML = `
+        <div class="final-deck-result">
+            <div class="final-hero-name">【HERO】${escapeHtml(player.heroResult)}</div>
+            <div class="final-cards-list">${cards.map(c => `[${escapeHtml(c)}]`).join(" ")}</div>
+        </div>
+    `;
+
+    await holdRouletteResult(2500);
+    win.classList.remove("rainbow-flash");
+    reach.style.display = "none";
+    overlay.classList.remove("show");
+}
+
+/* =========================================================
+   全体抽選
+========================================================= */
+
+async function drawDeck() {
+    initAudio();
+
+    const count = parseInt(document.getElementById("memberCount").value, 10);
+    const cards = document.querySelectorAll(".player-card");
+    const resultBox = document.getElementById("resultArea");
+    const copyAllBtn = document.getElementById("copyAllBtn");
+    resultBox.innerHTML = "";
+    copyAllBtn.style.display = "none";
+
+    const startBtn = document.getElementById("startBtn");
+    startBtn.disabled = true;
+
+    const players = [];
+    const teamAssignments = getTeamAssignments(count);
+    const isEffectOn = document.getElementById("effectToggle").checked;
+    const rouletteMode = getSelectedRouletteMode();
+    const isLucianoHuguOn = (rouletteMode === "slokas") && document.getElementById("lucianoHuguToggle").checked;
+    const targetCard = document.getElementById("targetCardSelect").value || "設置";
+
+    for (let i = 0; i < count; i++) {
+        const card = cards[i];
+        let name = card.querySelector(".p-name").value.trim();
+        const mode = card.querySelector('input[type="radio"]:checked').value;
+        const hero = card.querySelector(".p-hero").value;
+
+        if (!name) {
+            name = count === 1 ? "名無し" : `名無し${i + 1}`;
+        }
+
+        if (mode === "select" && !hero) {
+            alert(`${i + 1}人目のキャラが選ばれてません！`);
+            startBtn.disabled = false;
+            return;
+        }
+
+        const heroResult = mode === "select" ? hero : globalAllHeroes[Math.floor(Math.random() * globalAllHeroes.length)];
+        
+        let cardsResult;
+        if (isLucianoHuguOn && heroResult === "ルチアーノ") {
+            cardsResult = [targetCard, targetCard, targetCard, targetCard];
+        } else {
+            cardsResult = createCards();
+        }
+
+        const playerData = {
+            index: i,
+            name,
+            mode,
+            hero,
+            heroResult,
+            cardsResult,
+            team: teamAssignments[i]
+        };
+
+        players.push(playerData);
+    }
+
+    for (let i = 0; i < players.length; i++) {
+        const p = players[i];
+
+        if (isEffectOn) {
+            if (rouletteMode === "short") {
+                await rouletteShortAnimation(p);
+            } else if (rouletteMode === "slokas") {
+                await rouletteSlokasAnimation(p);
+            } else {
+                await rouletteAnimation(
+                    p.name,
+                    p.mode === "random" ? "ヒーロー抽選" : "ヒーロー確認",
+                    globalAllHeroes,
+                    p.heroResult,
+                    p.team
+                );
+                await rouletteCardsAnimation(p.name, p.heroResult, p.cardsResult);
+            }
+        }
+
+        const pBlock = document.createElement("div");
+        pBlock.className = `player-res anim-fade team-${p.team}`;
+        pBlock.id = `resBlock_${p.index}`;
+        pBlock.__playerData = p;
+
+        resultBox.appendChild(pBlock);
+        renderPlayerResult(p, pBlock);
+
+        await wait(200);
+    }
+
+    copyAllBtn.style.display = "block";
+    saveLog(players);
+    renderLogs();
+
+    startBtn.disabled = false;
+}
+
+/* =========================================================
+   ヒーローリロール
+========================================================= */
+
+async function rerollHero(index) {
+    initAudio();
+
+    const cards = document.querySelectorAll(".player-card");
+    const card = cards[index];
+    if (!card) return;
+
+    const name = card.querySelector(".p-name").value.trim() || `名無し${index + 1}`;
+    const mode = card.querySelector('input[type="radio"]:checked').value;
+    const hero = globalAllHeroes[Math.floor(Math.random() * globalAllHeroes.length)];
+
+    const target = document.getElementById(`resBlock_${index}`);
+    if (!target) return;
+
+    const current = target.__playerData || getPlayerDataFromResult(target, index, name);
+    const finalHero = mode === "select" ? card.querySelector(".p-hero").value : hero;
+
+    const rMode = getSelectedRouletteMode();
+    const isLucianoHuguOn = (rMode === "slokas") && document.getElementById("lucianoHuguToggle").checked;
+    const targetCard = document.getElementById("targetCardSelect").value || "設置";
+
+    let updatedCards = current.cardsResult;
+    if (isLucianoHuguOn && finalHero === "ルチアーノ") {
+        updatedCards = [targetCard, targetCard, targetCard, targetCard];
+    }
+
+    if (document.getElementById("effectToggle").checked) {
+        if (rMode === "slokas") {
+            await rouletteSlokasAnimation({ ...current, heroResult: finalHero, cardsResult: updatedCards }, "hero");
+        } else if (rMode === "short") {
+            await rouletteShortHeroAnimation(name, finalHero);
+        } else {
+            await rouletteAnimation(
+                name,
+                mode === "select" ? "ヒーロー確認" : "ヒーローリロール",
+                globalAllHeroes,
+                finalHero,
+                current.team
+            );
+        }
+    }
+
+    current.heroResult = finalHero;
+    current.cardsResult = updatedCards;
+    current.name = name;
+    target.__playerData = current;
+
+    renderPlayerResult(current, target);
+    addRerollLog(index, "hero", finalHero);
+}
+
+/* =========================================================
+   カードリロール
+========================================================= */
+
+async function rerollCards(index) {
+    initAudio();
+
+    const cards = document.querySelectorAll(".player-card");
+    const card = cards[index];
+    if (!card) return;
+
+    const name = card.querySelector(".p-name").value.trim() || `名無し${index + 1}`;
+    
+    const target = document.getElementById(`resBlock_${index}`);
+    if (!target) return;
+
+    const current = target.__playerData || getPlayerDataFromResult(target, index, name);
+    const rMode = getSelectedRouletteMode();
+    const isLucianoHuguOn = (rMode === "slokas") && document.getElementById("lucianoHuguToggle").checked;
+    const targetCard = document.getElementById("targetCardSelect").value || "設置";
+
+    let newCards;
+    if (isLucianoHuguOn && current.heroResult === "ルチアーノ") {
+        newCards = [targetCard, targetCard, targetCard, targetCard];
+    } else {
+        newCards = createCards();
+    }
+
+    if (document.getElementById("effectToggle").checked) {
+        if (rMode === "slokas") {
+            await rouletteSlokasAnimation({ ...current, cardsResult: newCards }, "cards");
+        } else if (rMode === "short") {
+            await rouletteShortCardsAnimation(name, newCards);
+        } else {
+            await rouletteCardsAnimation(name, current.heroResult, newCards);
+        }
+    }
+
+    current.cardsResult = newCards;
+    current.name = name;
+    target.__playerData = current;
+
+    renderPlayerResult(current, target);
+    addRerollLog(index, "cards", newCards);
+}
+
+/* =========================================================
+   結果からデータ復元
+========================================================= */
+
+function getPlayerDataFromResult(target, index, name) {
+    const hero = target.querySelector(".res-hero").textContent.trim();
+    const cardRows = target.querySelectorAll(".card-label");
+    const cards = Array.from(cardRows).map(el => el.textContent.trim());
+
+    return {
+        index,
+        name,
+        mode: "random",
+        hero: "",
+        heroResult: hero,
+        cardsResult: cards,
+        team: target.classList.contains("team-red") ? "red" : "blue"
+    };
+}
+
+/* =========================================================
+   ログ保存
+========================================================= */
+
+function saveLog(players) {
+    const oldLogs = JSON.parse(localStorage.getItem("deckRouletteLogs") || "[]");
+
+    const log = {
+        date: new Date().toLocaleString("ja-JP"),
+        players: players.map(p => ({
+            index: p.index,
+            name: p.name,
+            hero: p.heroResult,
+            cards: [...p.cardsResult],
+            team: p.team
+        }))
+    };
+
+    oldLogs.unshift(log);
+    const limited = oldLogs.slice(0, 100);
+    localStorage.setItem("deckRouletteLogs", JSON.stringify(limited));
+}
+
+function addRerollLog(index, type, value) {
+    const logs = JSON.parse(localStorage.getItem("deckRouletteLogs") || "[]");
+    if (!logs.length) return;
+
+    const log = logs[0];
+    let player = log.players.find(p => Number(p.index) === Number(index));
+    if (!player) player = log.players[index];
+    if (!player) return;
+
+    player.rerolls = Array.isArray(player.rerolls) ? player.rerolls : [];
+    player.rerolls.push({
+        type: type,
+        value: Array.isArray(value) ? [...value] : value,
+        date: new Date().toLocaleTimeString("ja-JP")
+    });
+
+    if (type === "hero") player.hero = value;
+    if (type === "cards") player.cards = [...value];
+
+    localStorage.setItem("deckRouletteLogs", JSON.stringify(logs));
+    renderLogs();
+}
+
+/* =========================================================
+   ログ表示
+========================================================= */
+
+function renderLogs() {
+    const area = document.getElementById("logArea");
+    const logs = JSON.parse(localStorage.getItem("deckRouletteLogs") || "[]");
+
+    if (logs.length === 0) {
+        area.innerHTML = `<div class="no-log">まだ抽選ログはありません</div>`;
+        return;
+    }
+
+    area.innerHTML = logs.map(log => `
+        <div class="log-item">
+            <div class="log-date">${escapeHtml(log.date)}</div>
+            ${log.players.map(p => `
+                <div class="log-player">${escapeHtml(p.name)}</div>
+                <div class="log-detail">
+                    チーム：${p.team === "red" ? "赤" : "青"}<br>
+                    ヒーロー：${escapeHtml(p.hero)}<br>
+                    カード：${p.cards.map(c => escapeHtml(c)).join(" / ")}
+                    ${
+                        Array.isArray(p.rerolls) && p.rerolls.length
+                            ? `<br><strong>リロール履歴：</strong><br>${
+                                p.rerolls.map(r =>
+                                    `${r.type === "hero" ? "ヒーロー" : "カード"}をリロール → ${
+                                        Array.isArray(r.value)
+                                            ? r.value.map(v => escapeHtml(v)).join(" / ")
+                                            : escapeHtml(String(r.value))
+                                    }`
+                                ).join("<br>")
+                            }`
+                            : ""
+                    }
+                </div>
+            `).join("")}
+        </div>
+    `).join("");
+}
+
+/* =========================================================
+   ログ削除
+========================================================= */
+
+function clearLogs() {
+    if (!confirm("保存されている抽選ログをすべて削除しますか？")) return;
+    localStorage.removeItem("deckRouletteLogs");
+    renderLogs();
+}
+
+/* =========================================================
+   初期化
+========================================================= */
+
+window.addEventListener("DOMContentLoaded", () => {
+    const tpl = document.getElementById("heroOptions");
+    const dummySelect = document.createElement("select");
+
+    dummySelect.appendChild(tpl.content.cloneNode(true));
+
+    globalAllHeroes = Array.from(dummySelect.options)
+        .map(opt => opt.text)
+        .filter(text => text !== "キャラを選択してね");
+
+    const targetCardSelect = document.getElementById("targetCardSelect");
+    cardTypes.forEach(type => {
+        const opt = document.createElement("option");
+        opt.value = type;
+        opt.textContent = type;
+        if (type === "設置") opt.selected = true;
+        targetCardSelect.appendChild(opt);
+    });
+
+    loadPresets();
+    renderPresets();
+    buildProbabilityControls();
+    buildPlayerInputs();
+    renderLogs();
+    
+    toggleEffectOption();
+});
+
+</script>
+
+</body>
+
+</html>
